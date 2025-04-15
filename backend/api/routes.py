@@ -1,8 +1,9 @@
-from fastapi import APIRouter, UploadFile, Form,File,HTTPException
+from fastapi import APIRouter, UploadFile, Form, File, HTTPException
 from backend.schemas.function_schema import FunctionCreate
-from backend.db.models import insert_function, get_all_functions,delete_function_by_id
+from backend.db.models import insert_function, get_all_functions, delete_function_by_id
 from backend.utils.file_handler import save_function_file
-from backend.core.docker_executor import run_function_in_docker
+from backend.core.docker_executor import run_function_in_container
+from backend.db.models import get_execution_logs
 
 router = APIRouter()
 
@@ -14,8 +15,8 @@ async def upload_function(
     file: UploadFile = File(...)
 ):
     path = save_function_file(file, language)
-    insert_function(name, language, path, timeout)
-    return {"message": "Function uploaded successfully", "path": path}
+    function_id = insert_function(name, language, path, timeout)  # Ensure function_id is returned
+    return {"message": "Function uploaded successfully", "path": path, "function_id": function_id}
 
 @router.get("/functions/")
 async def list_functions():
@@ -25,9 +26,12 @@ async def list_functions():
 async def run_function(
     file_path: str = Form(...),
     language: str = Form(...),
-    timeout: int = Form(5)
+    timeout: int = Form(5),
+    use_gvisor: bool = Form(False)  # Option to use gVisor
 ):
-    return run_function_in_docker(file_path, language, timeout)
+    performance_data = run_function_in_container(file_path, language, timeout, use_gvisor)
+    return performance_data
+
 
 
 @router.delete("/functions/{function_id}")
@@ -37,4 +41,10 @@ def delete_function(function_id: int):
         return {"message": f"Function with ID {function_id} deleted successfully."}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
+    
+@router.get("/functions/{function_id}/logs")
+def fetch_logs(function_id: int):
+    logs = get_execution_logs(function_id)
+    if not logs:
+        raise HTTPException(status_code=404, detail="No logs found for the specified function ID")
+    return logs
