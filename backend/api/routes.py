@@ -1,6 +1,7 @@
 from fastapi import APIRouter, UploadFile, Form, File, HTTPException
 from backend.schemas.function_schema import FunctionCreate
 from backend.db.models import insert_function, get_all_functions, delete_function_by_id
+from backend.db.models import get_aggregated_metrics
 from backend.utils.file_handler import save_function_file
 from backend.core.docker_executor import run_function_in_container
 from backend.db.models import get_execution_logs
@@ -32,8 +33,6 @@ async def run_function(
     performance_data = run_function_in_container(file_path, language, timeout, use_gvisor)
     return performance_data
 
-
-
 @router.delete("/functions/{function_id}")
 def delete_function(function_id: int):
     try:
@@ -48,3 +47,10 @@ def fetch_logs(function_id: int):
     if not logs:
         raise HTTPException(status_code=404, detail="No logs found for the specified function ID")
     return logs
+
+@router.get("/functions/{function_id}/metrics")
+def aggregated_metrics(function_id: int):
+    metrics = get_aggregated_metrics(function_id)
+    if not metrics:
+        raise HTTPException(status_code=404, detail="No execution data found for the specified function ID")
+    return metrics
