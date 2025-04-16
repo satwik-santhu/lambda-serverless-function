@@ -9,7 +9,7 @@ def init_db():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
             language TEXT NOT NULL,
-            file_path TEXT NOT NULL,
+            code TEXT NOT NULL,
             timeout INTEGER DEFAULT 5
         );
     """)

@@ -2,7 +2,7 @@ import subprocess
 import os
 import time
 import uuid
-from backend.db.models import log_execution, get_function_id_by_path
+from backend.db.models import log_execution, get_function_id_by_path,get_function_code
 import docker
 
 client = docker.from_env()
@@ -29,7 +29,6 @@ def create_new_container(file_path, language, use_gvisor=False):
     """
     Create a new container for executing the function.
     """
-    function_id = get_function_id_by_path(file_path)
     container_name = f"lambda_{uuid.uuid4().hex}"
     base_image = "lambda_base_python" if language == "python" else "lambda_base_node"
     file_ext = file_path.split('.')[-1]
@@ -64,8 +63,15 @@ def create_new_container(file_path, language, use_gvisor=False):
         raise Exception(f"Error creating container: {str(e)}")
 
 
-def run_function_in_container(file_path, language, timeout, use_gvisor=False):
-    container = get_or_create_container(file_path, language, use_gvisor)
+def run_function_in_container(function_id, language, timeout, use_gvisor=False):
+    code = get_function_code(function_id)
+    file_ext = "py" if language == "python" else "js"
+    temp_file_path = f"/tmp/temp_{uuid.uuid4().hex}.{file_ext}"
+
+    with open(temp_file_path, "w") as f:
+        f.write(code)
+
+    container = get_or_create_container(temp_file_path, language, use_gvisor)
     
     try:
         start_time = time.time()
@@ -82,7 +88,7 @@ def run_function_in_container(file_path, language, timeout, use_gvisor=False):
         end_time = time.time()
         exec_time = round(end_time - start_time, 4)
 
-        log_execution(get_function_id_by_path(file_path), exec_time, memory_usage, cpu_percent, status="success")
+        log_execution(function_id, exec_time, memory_usage, cpu_percent, status="success")
 
         performance_data = {
             "result": logs,

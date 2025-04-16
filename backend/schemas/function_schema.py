@@ -2,5 +2,9 @@ from pydantic import BaseModel
 
 class FunctionCreate(BaseModel):
     name: str
-    language: str  # "python" or "javascript"
+    language: str
     timeout: int
+    code: str
+
+class FunctionUpdate(BaseModel):
+    code: str

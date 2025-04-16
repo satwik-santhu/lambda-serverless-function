@@ -1,14 +1,13 @@
 from backend.db.database import cursor, conn
 import os
 
-def insert_function(name, language, file_path, timeout):
+def insert_function(name, language, code, timeout):
     cursor.execute("""
-        INSERT INTO functions (name, language, file_path, timeout)
+        INSERT INTO functions (name, language, code, timeout)
         VALUES (?, ?, ?, ?)
-    """, (name, language, file_path, timeout))
+    """, (name, language, code, timeout))
     conn.commit()
-    function_id = cursor.lastrowid  # Get the ID of the inserted function
-    return function_id  # Return function_id
+    return cursor.lastrowid
 
 def get_all_functions():
     cursor.execute("SELECT * FROM functions")
@@ -66,3 +65,16 @@ def get_aggregated_metrics(function_id):
             "last_run_time": row[4]
         }
     return None
+
+def update_function_code(function_id, new_code):
+    cursor.execute("""
+        UPDATE functions SET code = ? WHERE id = ?
+    """, (new_code, function_id))
+    conn.commit()
+
+def get_function_code(function_id):
+    cursor.execute("""
+        SELECT code FROM functions WHERE id = ?
+    """, (function_id,))
+    row = cursor.fetchone()
+    return row[0] if row else None
