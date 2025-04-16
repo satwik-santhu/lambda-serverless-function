@@ -1,8 +1,7 @@
-import subprocess
 import os
 import time
 import uuid
-from backend.db.models import log_execution, get_function_id_by_path,get_function_code
+from backend.db.models import log_execution,get_function_code
 import docker
 
 client = docker.from_env()
