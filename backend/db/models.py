@@ -14,14 +14,19 @@ def get_all_functions():
     return cursor.fetchall()
 
 def delete_function_by_id(function_id):
-    cursor.execute("SELECT file_path FROM functions WHERE id = ?", (function_id,))
-    row = cursor.fetchone()
-    if row:
-        file_path = row[0]
-        if os.path.exists(file_path):
-            os.remove(file_path)
-    cursor.execute("DELETE FROM functions WHERE id = ?", (function_id,))
-    conn.commit()
+    try:
+        # Check if function exists first
+        cursor.execute("SELECT id FROM functions WHERE id = ?", (function_id,))
+        if not cursor.fetchone():
+            return False
+            
+        cursor.execute("DELETE FROM functions WHERE id = ?", (function_id,))
+        conn.commit()
+        return True
+    except Exception as e:
+        print(f"Error deleting function: {str(e)}")
+        conn.rollback()
+        return False
 
 def log_execution(function_id, exec_time, mem_usage, cpu_percent, status):
     cursor.execute("""

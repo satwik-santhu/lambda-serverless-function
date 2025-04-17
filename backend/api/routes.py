@@ -37,13 +37,22 @@ async def run_function(function_id: int, use_gvisor: bool = Form(False)):
 
 
 @router.delete("/functions/{function_id}")
-def delete_function(function_id: int):
+async def delete_function(function_id: int):
     try:
-        delete_function_by_id(function_id)
-        return {"message": f"Function with ID {function_id} deleted successfully."}
+        success = delete_function_by_id(function_id)
+        if success:
+            return {"message": f"Function {function_id} deleted successfully"}
+        else:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Function with ID {function_id} not found"
+            )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-    
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error deleting function: {str(e)}"
+        )
+
 @router.get("/functions/{function_id}/logs")
 def fetch_logs(function_id: int):
     logs = get_execution_logs(function_id)
@@ -52,10 +61,24 @@ def fetch_logs(function_id: int):
     return logs
 
 @router.get("/functions/{function_id}/metrics")
-def aggregated_metrics(function_id: int):
+def aggregated_metrics(function_id: int | None):
+    if function_id is None:
+        return {
+            "total_runs": 0,
+            "avg_exec_time": 0,
+            "avg_memory_usage": 0,
+            "avg_cpu_percent": 0,
+            "last_run_time": None
+        }
     metrics = get_aggregated_metrics(function_id)
     if not metrics:
-        raise HTTPException(status_code=404, detail="No execution data found for the specified function ID")
+        return {
+            "total_runs": 0,
+            "avg_exec_time": 0,
+            "avg_memory_usage": 0,
+            "avg_cpu_percent": 0,
+            "last_run_time": None
+        }
     return metrics
 
 
