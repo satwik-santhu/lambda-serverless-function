@@ -102,6 +102,12 @@ def run_function_in_container(function_id, language, timeout, use_gvisor=False):
 
     except Exception as e:
         return {"error": f"Error running the function: {str(e)}"}
+
+    finally:
+        try:
+            container.remove(force=True)
+        except Exception as cleanup_error:
+            print(f"Error cleaning up container: {cleanup_error}")
     
 
 def calculate_cpu_percent(stats):

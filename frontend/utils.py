@@ -38,5 +38,6 @@ def get_code(function_id):
     return res.json()
 
 def update_code(function_id, new_code):
+    print(f"Updating Function {function_id} with code: {new_code[:100]}")
     res = requests.put(f"{BASE_URL}/functions/{function_id}", json={"code": new_code})
     return res.json()

@@ -62,16 +62,21 @@ with tabs[1]:
                 st.write(res)
 
             if cols[1].button("📝 Edit Code", key=f"edit_{func[0]}"):
+                st.session_state[f"editing_{func[0]}"] = True
+
+            if st.session_state.get(f"editing_{func[0]}", False):
                 current_code = get_code(func[0])["code"]
                 edited_code = st.text_area("Edit Code", value=current_code, height=200, key=f"code_{func[0]}")
+                
                 if st.button("Save Changes", key=f"save_{func[0]}"):
                     response = update_code(func[0], edited_code)
                     if "message" in response:
-                        print(response)
                         st.success(response["message"])
+                        st.session_state[f"editing_{func[0]}"] = False
                         st.rerun()
                     else:
                         st.error("Failed to update code")
+
 
             if cols[2].button("🗑 Delete", key=f"delete_{func[0]}"):
                 response = delete_function(func[0])

@@ -1,11 +1,10 @@
 import sqlite3
-from fastapi import APIRouter, UploadFile, Form, File, HTTPException
+from fastapi import APIRouter, Form, HTTPException
 from backend.schemas.function_schema import FunctionCreate
 from backend.db.models import insert_function, get_all_functions, delete_function_by_id
 from backend.schemas.function_schema import FunctionUpdate
 from backend.db.models import update_function_code, get_function_code
 from backend.db.models import get_aggregated_metrics
-from backend.utils.file_handler import save_function_file
 from backend.core.docker_executor import run_function_in_container
 from backend.db.models import get_execution_logs
 
@@ -53,6 +52,14 @@ async def delete_function(function_id: int):
             detail=f"Error deleting function: {str(e)}"
         )
 
+@router.put("/functions/{function_id}")
+async def update_function(function_id: int, update: FunctionUpdate):
+    try:
+        update_function_code(function_id, update.code)
+        return {"message": "Function code updated successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
 @router.get("/functions/{function_id}/logs")
 def fetch_logs(function_id: int):
     logs = get_execution_logs(function_id)
@@ -80,15 +87,6 @@ def aggregated_metrics(function_id: int | None):
             "last_run_time": None
         }
     return metrics
-
-
-@router.put("/functions/{function_id}")
-async def update_function(function_id: int, update: FunctionUpdate):
-    try:
-        update_function_code(function_id, update.code)
-        return {"message": "Function code updated successfully"}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/functions/{function_id}/code")
 async def get_function_code_view(function_id: int):
