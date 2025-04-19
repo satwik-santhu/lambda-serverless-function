@@ -74,9 +74,15 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 <pre><code>pip install -r requirements.txt
 </code></pre>
 
+<h3>Docker iamges</h3>
+<pre>
+docker build -f base_python.Dockerfile -t lambda_base_python .
+docker build -f base_node.Dockerfile -t lambda_base_node .
+</pre>
+
 <h3>4. Start the FastAPI Backend</h3>
 
-<pre><code>uvicorn backend.routes:router --reload --host 0.0.0.0 --port 8000
+<pre><code>uvicorn backend.main:app --reload
 </code></pre>
 
 <h3>5. Start the Streamlit Frontend</h3>

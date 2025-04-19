@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 st.set_page_config(page_title="Lambda Platform", layout="wide")
 
-st.title("⚡ Serverless Function Platform (Lambda Clone)")
+st.title("⚡ Serverless Function Platform (Lambda)")
 
 tabs = st.tabs(["🚀 Upload Function", "📂 Manage Functions", "📊 Monitoring Dashboard"])
 
