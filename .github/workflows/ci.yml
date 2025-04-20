@@ -36,7 +36,13 @@ jobs:
       run: |
         uvicorn backend.main:app --host 127.0.0.1 --port 8000 &
         sleep 5
-        curl -s http://127.0.0.1:8000/functions/ | grep -q "[]" && echo "✅ API Live" || exit 1
+        RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8000/functions/)
+        if [ "$RESPONSE" -eq 200 ]; then
+          echo "✅ API Live"
+        else
+          echo "❌ API failed with status code $RESPONSE"
+          exit 1
+        fi
 
     - name: 🧪 Validate Streamlit Startup
       run: |
