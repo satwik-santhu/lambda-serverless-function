@@ -34,7 +34,8 @@ jobs:
 
     - name: 🧪 Run Backend Tests
       run: |
-        uvicorn backend.main:app --host 127.0.0.1 --port 8000 
+        uvicorn backend.main:app --host 127.0.0.1 --port 8000 &
+        sleep 5
         curl -s http://127.0.0.1:8000/functions/ | grep -q "[]" && echo "✅ API Live" || exit 1
 
     - name: 🧪 Validate Streamlit Startup
