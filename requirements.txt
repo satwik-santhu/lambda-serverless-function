@@ -4,3 +4,7 @@ pydantic
 python-dotenv
 docker
 python-multipart
+streamlit
+pandas
+numpy
+matplotlib
