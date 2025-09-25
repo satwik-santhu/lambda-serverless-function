@@ -151,7 +151,7 @@ DELETE /functions/{id}                # Delete a function
 
 <h2>👨‍💻 Author</h2>
 
-<p>Developed by <strong>pes2ug22cs258,pes2ug22cs251,pes2ug22cs270,pes2ug22cs908</strong></p>
+<p>Developed by <strong>💖💖💖</strong></p>
 <p>Feel free to ⭐ the repo and contribute!</p>
 
 <hr>
