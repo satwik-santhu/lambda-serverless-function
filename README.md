@@ -59,7 +59,7 @@
 
 <h3>1. Clone the Repository</h3>
 
-<pre><code>git clone https://github.com/KARTIK9990/PES2UG22CS251_PES2UG22CS258_PES2UG22CS275_PES2UG22CS908_Lamda_serverless_function.git
+<pre><code>git clone 
 cd lambda-platform
 </code></pre>
 
